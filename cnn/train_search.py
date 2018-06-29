@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import glob
+import itertools
 import numpy as np
 import torch
 import utils
@@ -137,14 +138,13 @@ def train(train_queue, search_queue, model, architect, criterion, optimizer, lr)
   top5 = utils.AvgrageMeter()
   grad = utils.AvgrageMeter()
 
-  for step, (input, target) in enumerate(train_queue):
+  queue = zip(train_queue, itertools.cycle(search_queue))
+  for step, ((input, target), (input_search, target_search)) in enumerate(queue):
     model.train()
     n = input.size(0)
 
     input = Variable(input, requires_grad=False).cuda()
     target = Variable(target, requires_grad=False).cuda(async=True)
-
-    input_search, target_search = next(iter(search_queue))
     input_search = Variable(input_search, requires_grad=False).cuda()
     target_search = Variable(target_search, requires_grad=False).cuda(async=True)
 
