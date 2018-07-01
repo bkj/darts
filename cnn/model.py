@@ -23,6 +23,7 @@ class Cell(nn.Module):
     else:
       op_names, indices = zip(*genotype.normal)
       concat = genotype.normal_concat
+      
     self._compile(C, op_names, indices, concat, reduction)
 
   def _compile(self, C, op_names, indices, concat, reduction):
@@ -135,9 +136,10 @@ class NetworkCIFAR(nn.Module):
       C_prev_prev, C_prev = C_prev, cell.multiplier*C_curr
       if i == 2*layers//3:
         C_to_auxiliary = C_prev
-
+        
     if auxiliary:
       self.auxiliary_head = AuxiliaryHeadCIFAR(C_to_auxiliary, num_classes)
+    
     self.global_pooling = nn.AdaptiveAvgPool2d(1)
     self.classifier = nn.Linear(C_prev, num_classes)
 
