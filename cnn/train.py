@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import glob
+import pickle
 import numpy as np
 import torch
 import utils
@@ -67,7 +68,11 @@ def main():
   logging.info('gpu device = %d' % args.gpu)
   logging.info("args = %s", args)
 
-  genotype = eval("genotypes.%s" % args.arch)
+  if 'pkl' in args.arch:
+    genotype = pickle.load(open(args.arch, 'rb'))
+  else:
+    genotype = eval("genotypes.%s" % args.arch)
+  
   model = Network(args.init_channels, CIFAR_CLASSES, args.layers, args.auxiliary, genotype)
   model = model.cuda()
 
