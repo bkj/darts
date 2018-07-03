@@ -2,7 +2,6 @@ import os
 import sys
 import time
 import glob
-import itertools
 import numpy as np
 import torch
 import utils
@@ -131,26 +130,20 @@ def main():
 
     utils.save(model, os.path.join(args.save, 'weights.pt'))
 
-
-def loopy_wrapper(loader):
-  while True:
-    for x in loader:
-      yield x
-
 def train(train_queue, search_queue, model, architect, criterion, optimizer, lr):
   objs = utils.AvgrageMeter()
   top1 = utils.AvgrageMeter()
   top5 = utils.AvgrageMeter()
   grad = utils.AvgrageMeter()
   
-  queue = zip(train_queue, loopy_wrapper(train_queue))
-  for step, (input, target) in train_queue:
+  for step, (input, target) in enumerate(train_queue):
     model.train()
     n = input.size(0)
-
-    (input_search, target_search) = next(iter(search_queue))
+    
     input = Variable(input, requires_grad=False).cuda()
     target = Variable(target, requires_grad=False).cuda(async=True)
+    
+    (input_search, target_search) = next(iter(search_queue))
     input_search = Variable(input_search, requires_grad=False).cuda()
     target_search = Variable(target_search, requires_grad=False).cuda(async=True)
 
