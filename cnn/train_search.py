@@ -180,7 +180,7 @@ valid_queue = torch.utils.data.DataLoader(
 # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
 #       optimizer, float(args.epochs), eta_min=args.learning_rate_min)
 
-architect = Architect(model, args)
+architect = Architect(model, optimizer, args)
 
 set_seeds(444)
 
