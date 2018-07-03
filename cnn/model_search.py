@@ -6,6 +6,7 @@ from torch.autograd import Variable
 from genotypes import PRIMITIVES
 from genotypes import Genotype
 
+torch.set_default_tensor_type('torch.DoubleTensor')
 
 class MixedOp(nn.Module):
 
@@ -57,7 +58,8 @@ class Cell(nn.Module):
 
     return torch.cat(states[-self._multiplier:], dim=1)
 
-
+import numpy as np
+from basenet.helpers import set_seeds
 class Network(nn.Module):
 
   def __init__(self, C, num_classes, layers, criterion, steps=4, multiplier=4, stem_multiplier=3):
@@ -114,8 +116,13 @@ class Network(nn.Module):
     k = sum(1 for i in range(self._steps) for n in range(2+i))
     num_ops = len(PRIMITIVES)
 
-    self.alphas_normal = Variable(1e-3*torch.randn(k, num_ops).cuda(), requires_grad=True)
-    self.alphas_reduce = Variable(1e-3*torch.randn(k, num_ops).cuda(), requires_grad=True)
+    set_seeds(222)
+    scale = 1e-3
+    # self.alphas_normal = Variable(1e-3*torch.randn(k, num_ops).cuda(), requires_grad=True)
+    # self.alphas_reduce = Variable(1e-3*torch.randn(k, num_ops).cuda(), requires_grad=True)
+    self.alphas_normal = Variable(torch.Tensor(np.random.normal(0, scale, (k, num_ops))).cuda(), requires_grad=True)
+    self.alphas_reduce = Variable(torch.Tensor(np.random.normal(0, scale, (k, num_ops))).cuda(), requires_grad=True)
+    
     self._arch_parameters = [
       self.alphas_normal,
       self.alphas_reduce,

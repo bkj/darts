@@ -4,7 +4,7 @@ import torch
 import shutil
 import torchvision.transforms as transforms
 from torch.autograd import Variable
-
+torch.set_default_tensor_type('torch.DoubleTensor')
 
 class AvgrageMeter(object):
 
@@ -64,17 +64,19 @@ def _data_transforms_cifar10(args):
   CIFAR_STD = [0.24703233, 0.24348505, 0.26158768]
 
   train_transform = transforms.Compose([
-    transforms.RandomCrop(32, padding=4),
-    transforms.RandomHorizontalFlip(),
+    # transforms.RandomCrop(32, padding=4),
+    # transforms.RandomHorizontalFlip(),
     transforms.ToTensor(),
-    transforms.Normalize(CIFAR_MEAN, CIFAR_STD),
+    transforms.Lambda(lambda x: x.double()),
+    # transforms.Normalize(CIFAR_MEAN, CIFAR_STD),
   ])
   if args.cutout:
     train_transform.transforms.append(Cutout(args.cutout_length))
 
   valid_transform = transforms.Compose([
     transforms.ToTensor(),
-    transforms.Normalize(CIFAR_MEAN, CIFAR_STD),
+    transforms.Lambda(lambda x: x.double()),
+    # transforms.Normalize(CIFAR_MEAN, CIFAR_STD),
     ])
   return train_transform, valid_transform
 
@@ -102,7 +104,7 @@ def load(model, model_path):
 def drop_path(x, drop_prob):
   if drop_prob > 0.:
     keep_prob = 1.-drop_prob
-    mask = Variable(torch.cuda.FloatTensor(x.size(0), 1, 1, 1).bernoulli_(keep_prob))
+    mask = Variable(torch.cuda.Tensor(x.size(0), 1, 1, 1).bernoulli_(keep_prob))
     x.div_(keep_prob)
     x.mul_(mask)
   return x
